@@ -1,5 +1,6 @@
 ﻿using System;
 using Lamp.Plugin;
+using Microsoft.AppCenter.Crashes;
 using Plugin.Connectivity;
 using Xamarin.Forms;
 
@@ -16,6 +17,7 @@ namespace NightscoutMobileHybrid
 		public NightscoutMobileHybridPage()
 		{
 			InitializeComponent();
+
 
 			slVolume.IsVisible = ApplicationSettings.VolumeSliderVisible;
 
@@ -180,6 +182,7 @@ namespace NightscoutMobileHybrid
 			else
 			{
 				DependencyService.Get<IScreenLock>().Unlock();
+
 			}
 		}
 
@@ -220,7 +223,7 @@ namespace NightscoutMobileHybrid
 			}
 			catch (Exception ex)
 			{
-				HockeyApp.MetricsManager.TrackEvent($"Light issue: {ex.Message}");
+                Crashes.TrackError(ex);
 			}
 		}
 

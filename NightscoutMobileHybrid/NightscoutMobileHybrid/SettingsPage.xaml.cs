@@ -26,6 +26,7 @@ namespace NightscoutMobileHybrid
 			swVolume.IsToggled = ApplicationSettings.VolumeSliderVisible;
 		}
 
+
 		async void btnSave_Clicked(object sender, System.EventArgs e)
 		{
 			if (String.IsNullOrEmpty(entURL.Text))
@@ -42,6 +43,13 @@ namespace NightscoutMobileHybrid
 				sURL = sURL.Replace("://", "");
 
 				sURL = "https://" + sURL;
+
+				//added on 3/25/17 by aditmer to resolve issue caused by trailing /
+				var s = sURL.Substring(sURL.Length -1);
+				if (s == "/")
+				{
+					sURL = sURL.Substring(0, sURL.Length - 1);
+				}
 
 				if (sURL != ApplicationSettings.URL)
 				{
@@ -64,9 +72,8 @@ namespace NightscoutMobileHybrid
 				Navigation.PopModalAsync(true);
 
 
-
 				await Webservices.GetStatusJson(sURL);
-				if ((ApplicationSettings.AzureTag != "") && (Device.OS != TargetPlatform.Windows))
+                if ((ApplicationSettings.AzureTag != "") && (Device.RuntimePlatform != Device.UWP))
 				{
 					//ApplicationSettings.AzureTag = azureTag;
 
@@ -75,7 +82,7 @@ namespace NightscoutMobileHybrid
 
 					RegisterRequest registration = new RegisterRequest();
 					//registration.deviceToken = DependencyService.Get<IPushNotifications>().GetDeviceToken();
-					registration.platform = Device.OS.ToString();
+					registration.platform = Device.RuntimePlatform;
 
 					registration.settings = new RegistrationSettings();
 					registration.settings.info = ApplicationSettings.InfoNotifications;

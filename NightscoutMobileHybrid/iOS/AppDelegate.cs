@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Foundation;
-using HockeyApp.iOS;
+
 using UIKit;
 using WindowsAzure.Messaging;
 using Newtonsoft.Json.Linq;
@@ -30,13 +30,7 @@ namespace NightscoutMobileHybrid.iOS
 
 			LoadApplication(new App());
 
-			//HockeyApp
-			var manager = BITHockeyManager.SharedHockeyManager;
-			manager.Configure("d8783c34856046d9bc081c47708843f6");
-			manager.StartManager();
-
-
-
+		
 			// Handling Push notification when app is closed if App was opened by Push Notification...
 			if (options != null && options.Keys != null && options.Keys.Count() != 0 && options.ContainsKey(new NSString("UIApplicationLaunchOptionsRemoteNotificationKey")))
 			{
@@ -228,7 +222,7 @@ namespace NightscoutMobileHybrid.iOS
 			else
 			{
 				
-				registration.platform = Xamarin.Forms.Device.OS.ToString();
+				registration.platform = Xamarin.Forms.Device.RuntimePlatform.ToString();
 
 				registration.settings = new RegistrationSettings();
 				registration.settings.info = ApplicationSettings.InfoNotifications;
@@ -355,8 +349,9 @@ namespace NightscoutMobileHybrid.iOS
 					//Manually show an alert
 					if (!string.IsNullOrEmpty(alert))
 					{
-						UIAlertView avAlert = new UIAlertView(title, alert, null, "OK", null);
-						avAlert.Show();
+						//removed on 3/22/17 by aditmer - I think this is preventing alarms from playing.
+						//UIAlertView avAlert = new UIAlertView(title, alert, null, "OK", null);
+						//avAlert.Show();
 					}
 				}
 			}

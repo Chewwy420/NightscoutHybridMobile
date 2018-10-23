@@ -2,10 +2,11 @@
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
-using HockeyApp.Android;
-using HockeyApp.Android.Metrics;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
+using Android.Gms.Common;
+using Firebase.Messaging;
+using Firebase.Iid;
 
 namespace NightscoutMobileHybrid.Droid
 {
@@ -13,8 +14,15 @@ namespace NightscoutMobileHybrid.Droid
 	[Activity(Label = "Nightscout", Icon = "@drawable/icon", Theme = "@style/MyTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
 	public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
 	{
-		protected override void OnCreate(Bundle bundle)
+        static readonly string TAG = "MainActivity";
+
+        internal static readonly string CHANNEL_ID = "my_notification_channel";
+        internal static readonly int NOTIFICATION_ID = 100;
+
+
+        protected override void OnCreate(Bundle bundle)
 		{
+
 			TabLayoutResource = Resource.Layout.Tabbar;
 			ToolbarResource = Resource.Layout.Toolbar;
 
@@ -26,39 +34,73 @@ namespace NightscoutMobileHybrid.Droid
 			{
 				Window.SetStatusBarColor(Color.FromHex("#000000").ToAndroid());
 			}
-			//HockeyApp
-			CrashManager.Register(this);
-			MetricsManager.Register(Application);
-			//MetricsManager.EnableUserMetrics();
-			CheckForUpdates();
 
+            if (IsPlayServicesAvailable())
+            {
+                CreateNotificationChannel();
+            }
 
-			LoadApplication(new App());
+            LoadApplication(new App());
 		}
 
-		void CheckForUpdates()
+        public bool IsPlayServicesAvailable()
+        {
+            int resultCode = GoogleApiAvailability.Instance.IsGooglePlayServicesAvailable(this);
+            if (resultCode != ConnectionResult.Success)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        void CreateNotificationChannel()
+        {
+            if (Build.VERSION.SdkInt < BuildVersionCodes.O)
+            {
+                // Notification channels are new in API 26 (and not a part of the
+                // support library). There is no need to create a notification
+                // channel on older versions of Android.
+                return;
+            }
+
+            var channel = new NotificationChannel(CHANNEL_ID,
+                                                  new Java.Lang.String("FCM Notifications"),
+                                                  NotificationImportance.Default)
+            {
+
+                Description = "Firebase Cloud Messages appear in this channel"
+            };
+
+            var notificationManager = (NotificationManager)GetSystemService(Android.Content.Context.NotificationService);
+            notificationManager.CreateNotificationChannel(channel);
+        }
+
+        void CheckForUpdates()
 		{
 			// Remove this for store builds!
-			UpdateManager.Register(this);
+			
 		}
 
 		void UnregisterManagers()
 		{
-			UpdateManager.Unregister();
+			
 		}
 
 		protected override void OnPause()
 		{
 			base.OnPause();
 
-			UnregisterManagers();
+			
 		}
 
 		protected override void OnDestroy()
 		{
 			base.OnDestroy();
 
-			UnregisterManagers();
+			
 		}
 	}
 }
